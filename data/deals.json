@@ -1,0 +1,15 @@
+{
+  "updated_at": "2026-07-03T12:00:00+00:00",
+  "origin": "BAQ",
+  "note": "Datos de ejemplo. Se reemplazan automáticamente cuando configures el token de Travelpayouts y corra el GitHub Action.",
+  "deals": [
+    { "destination": "PTY", "price": 380000, "currency": "COP", "departure_date": "2026-08-12", "airline": "CM", "transfers": 0, "discount_pct": 36.7, "link": "" },
+    { "destination": "MIA", "price": 620000, "currency": "COP", "departure_date": "2026-09-03", "airline": "AV", "transfers": 0, "discount_pct": 31.1, "link": "" },
+    { "destination": "CUR", "price": 590000, "currency": "COP", "departure_date": "2026-08-20", "airline": "AV", "transfers": 1, "discount_pct": 26.3, "link": "" },
+    { "destination": "MEX", "price": 850000, "currency": "COP", "departure_date": "2026-10-01", "airline": "AM", "transfers": 1, "discount_pct": 22.7, "link": "" },
+    { "destination": "LIM", "price": 720000, "currency": "COP", "departure_date": "2026-09-15", "airline": "AV", "transfers": 1, "discount_pct": 20.0, "link": "" },
+    { "destination": "MAD", "price": 2350000, "currency": "COP", "departure_date": "2026-11-05", "airline": "IB", "transfers": 1, "discount_pct": 16.1, "link": "" },
+    { "destination": "SJO", "price": 790000, "currency": "COP", "departure_date": "2026-08-28", "airline": "CM", "transfers": 1, "discount_pct": 12.2, "link": "" },
+    { "destination": "JFK", "price": 1180000, "currency": "COP", "departure_date": "2026-09-22", "airline": "AV", "transfers": 1, "discount_pct": 9.2, "link": "" }
+  ]
+}

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vuelos BAQ ✈ | Ofertas internacionales desde Barranquilla</title>
+<meta name="description" content="Buscador de vuelos económicos internacionales desde Barranquilla (BAQ) con alertas de súper descuentos actualizadas a diario.">
+<style>
+  :root{
+    --bg:#0b1026; --card:#151b3b; --card2:#1c2450;
+    --accent:#ffb703; --accent2:#4cc9f0; --green:#2ecc71; --red:#ff5d5d;
+    --text:#eef1ff; --muted:#9aa3c7; --radius:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+  .container{max-width:1100px;margin:0 auto;padding:0 20px}
+
+  header{background:linear-gradient(135deg,#1a2151 0%,#0b1026 60%),radial-gradient(circle at 80% 20%,#4cc9f033,transparent 50%);padding:48px 0 32px;text-align:center;border-bottom:1px solid #ffffff14}
+  header h1{font-size:2.2rem;letter-spacing:.5px}
+  header h1 span{color:var(--accent)}
+  header p{color:var(--muted);margin-top:8px;font-size:1.05rem}
+  .badge-live{display:inline-flex;align-items:center;gap:8px;background:#2ecc7122;color:var(--green);border:1px solid #2ecc7155;border-radius:999px;padding:6px 14px;font-size:.85rem;margin-top:14px}
+  .badge-live .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.6s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  section{padding:36px 0}
+  h2{font-size:1.4rem;margin-bottom:18px}
+  h2 small{color:var(--muted);font-weight:400;font-size:.85rem;margin-left:8px}
+
+  /* Buscador */
+  .search-box{background:var(--card);border:1px solid #ffffff14;border-radius:var(--radius);padding:24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;align-items:end}
+  .field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:6px}
+  .field input,.field select{width:100%;padding:11px 12px;border-radius:10px;border:1px solid #ffffff22;background:var(--card2);color:var(--text);font-size:.95rem}
+  .field input:focus,.field select:focus{outline:2px solid var(--accent2)}
+  .btn{cursor:pointer;border:none;border-radius:10px;padding:12px 18px;font-weight:600;font-size:.95rem;transition:transform .15s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn-primary{background:var(--accent);color:#1a1a1a}
+  .search-links{grid-column:1/-1;display:none;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .search-links.show{display:flex}
+  .search-links a{text-decoration:none;color:var(--text);background:var(--card2);border:1px solid #ffffff22;border-radius:10px;padding:10px 16px;font-size:.9rem}
+  .search-links a:hover{border-color:var(--accent2);color:var(--accent2)}
+
+  /* Ofertas */
+  .meta-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+  #updated{color:var(--muted);font-size:.85rem}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+  .deal{background:var(--card);border:1px solid #ffffff14;border-radius:var(--radius);padding:18px;position:relative;transition:transform .15s,border-color .15s}
+  .deal:hover{transform:translateY(-3px);border-color:var(--accent2)}
+  .deal.super{border-color:var(--accent);box-shadow:0 0 24px #ffb70322}
+  .flag{font-size:1.8rem}
+  .deal h3{margin:8px 0 2px;font-size:1.1rem}
+  .deal .route{color:var(--muted);font-size:.8rem}
+  .price{font-size:1.5rem;font-weight:700;color:var(--accent2);margin:12px 0 4px}
+  .deal.super .price{color:var(--accent)}
+  .price small{font-size:.8rem;color:var(--muted);font-weight:400}
+  .discount{position:absolute;top:14px;right:14px;background:var(--red);color:#fff;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:999px}
+  .discount.super{background:var(--accent);color:#1a1a1a}
+  .deal .date{color:var(--muted);font-size:.85rem;margin-bottom:12px}
+  .deal a.book{display:inline-block;text-decoration:none;background:var(--card2);border:1px solid #ffffff22;color:var(--text);border-radius:8px;padding:8px 14px;font-size:.85rem}
+  .deal a.book:hover{border-color:var(--accent2);color:var(--accent2)}
+  .empty{color:var(--muted);padding:30px;text-align:center;grid-column:1/-1}
+
+  /* Alerta */
+  .alert-banner{display:none;background:linear-gradient(90deg,#ffb70322,#ff5d5d22);border:1px solid var(--accent);border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;font-size:.95rem}
+  .alert-banner.show{display:block}
+  .alert-banner strong{color:var(--accent)}
+
+  footer{border-top:1px solid #ffffff14;padding:28px 0;color:var(--muted);font-size:.85rem;text-align:center}
+  footer a{color:var(--accent2);text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>✈ Vuelos<span>BAQ</span></h1>
+    <p>Ofertas internacionales económicas saliendo desde Barranquilla (BAQ)</p>
+    <div class="badge-live"><span class="dot"></span> Precios actualizados automáticamente cada día</div>
+  </div>
+</header>
+
+<section class="container">
+  <h2>🔍 Buscar vuelo</h2>
+  <div class="search-box">
+    <div class="field">
+      <label for="dest">Destino</label>
+      <select id="dest">
+        <option value="MIA">Miami (MIA)</option>
+        <option value="FLL">Fort Lauderdale (FLL)</option>
+        <option value="MCO">Orlando (MCO)</option>
+        <option value="JFK">Nueva York (JFK)</option>
+        <option value="PTY">Ciudad de Panamá (PTY)</option>
+        <option value="MEX">Ciudad de México (MEX)</option>
+        <option value="CUN">Cancún (CUN)</option>
+        <option value="LIM">Lima (LIM)</option>
+        <option value="SCL">Santiago de Chile (SCL)</option>
+        <option value="EZE">Buenos Aires (EZE)</option>
+        <option value="SJO">San José, CR (SJO)</option>
+        <option value="MAD">Madrid (MAD)</option>
+        <option value="BCN">Barcelona (BCN)</option>
+        <option value="CUR">Curazao (CUR)</option>
+        <option value="AUA">Aruba (AUA)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="dep">Ida</label>
+      <input type="date" id="dep">
+    </div>
+    <div class="field">
+      <label for="ret">Regreso (opcional)</label>
+      <input type="date" id="ret">
+    </div>
+    <div class="field">
+      <label for="pax">Pasajeros</label>
+      <select id="pax"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="buildLinks()">Comparar precios</button>
+    <div class="search-links" id="links"></div>
+  </div>
+</section>
+
+<section class="container">
+  <div class="alert-banner" id="alertBanner"></div>
+  <div class="meta-row">
+    <h2>🔥 Ofertas del día <small>desde Barranquilla · precios por trayecto en COP</small></h2>
+    <span id="updated"></span>
+  </div>
+  <div class="grid" id="deals">
+    <div class="empty">Cargando ofertas…</div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    Hecho con ❤ para viajeros barranquilleros · Los precios son referenciales y pueden cambiar al reservar.<br>
+    Proyecto open source — datos vía <a href="https://www.travelpayouts.com/" target="_blank" rel="noopener">Travelpayouts / Aviasales</a>.
+  </div>
+</footer>
+
+<script>
+const DEST_NAMES = {
+  MIA:["Miami","🇺🇸"], FLL:["Fort Lauderdale","🇺🇸"], MCO:["Orlando","🇺🇸"], JFK:["Nueva York","🇺🇸"],
+  PTY:["Ciudad de Panamá","🇵🇦"], MEX:["Ciudad de México","🇲🇽"], CUN:["Cancún","🇲🇽"],
+  LIM:["Lima","🇵🇪"], SCL:["Santiago","🇨🇱"], EZE:["Buenos Aires","🇦🇷"], SJO:["San José","🇨🇷"],
+  MAD:["Madrid","🇪🇸"], BCN:["Barcelona","🇪🇸"], CUR:["Curazao","🇨🇼"], AUA:["Aruba","🇦🇼"]
+};
+const SUPER_DISCOUNT = 30; // % para considerarse súper descuento
+
+// ---------- Buscador: enlaces profundos ----------
+function fmtShort(d){ return d.replaceAll('-','').slice(2); } // 2026-08-01 -> 260801
+function buildLinks(){
+  const dest = document.getElementById('dest').value;
+  const dep  = document.getElementById('dep').value;
+  const ret  = document.getElementById('ret').value;
+  const pax  = document.getElementById('pax').value;
+  if(!dep){ alert('Selecciona la fecha de ida'); return; }
+
+  const gq = `Flights from BAQ to ${dest} on ${dep}` + (ret ? ` through ${ret}` : ' one way');
+  const google = `https://www.google.com/travel/flights?q=${encodeURIComponent(gq)}&curr=COP`;
+  const sky = `https://www.skyscanner.com.co/transporte/vuelos/baq/${dest.toLowerCase()}/${fmtShort(dep)}/` + (ret ? `${fmtShort(ret)}/` : '') + `?adults=${pax}&currency=COP`;
+  const kayak = `https://www.kayak.com.co/flights/BAQ-${dest}/${dep}` + (ret ? `/${ret}` : '') + `/${pax}adults`;
+
+  const box = document.getElementById('links');
+  box.innerHTML = `
+    <a href="${google}" target="_blank" rel="noopener">🔎 Google Flights</a>
+    <a href="${sky}" target="_blank" rel="noopener">🌐 Skyscanner</a>
+    <a href="${kayak}" target="_blank" rel="noopener">🛫 Kayak</a>`;
+  box.classList.add('show');
+}
+
+// Fecha mínima = hoy
+const today = new Date().toISOString().slice(0,10);
+document.getElementById('dep').min = today;
+document.getElementById('ret').min = today;
+
+// ---------- Ofertas desde deals.json ----------
+const COP = n => '$' + Math.round(n).toLocaleString('es-CO');
+
+async function loadDeals(){
+  const grid = document.getElementById('deals');
+  try{
+    const res = await fetch('data/deals.json?v=' + Date.now());
+    if(!res.ok) throw new Error(res.status);
+    const data = await res.json();
+
+    document.getElementById('updated').textContent =
+      'Última actualización: ' + new Date(data.updated_at).toLocaleString('es-CO',{dateStyle:'medium',timeStyle:'short'});
+
+    const deals = (data.deals||[]).sort((a,b)=>(b.discount_pct||0)-(a.discount_pct||0));
+    if(!deals.length){ grid.innerHTML = '<div class="empty">No hay ofertas por ahora. Vuelve mañana ✈</div>'; return; }
+
+    const supers = deals.filter(d=>(d.discount_pct||0) >= SUPER_DISCOUNT);
+    if(supers.length){
+      const b = document.getElementById('alertBanner');
+      b.innerHTML = `🚨 <strong>¡SÚPER DESCUENTO!</strong> ${supers.length} destino(s) con ${SUPER_DISCOUNT}% o más de rebaja frente al precio típico: ` +
+        supers.map(d=>`<strong>${(DEST_NAMES[d.destination]||[d.destination])[0]} ${COP(d.price)}</strong>`).join(' · ');
+      b.classList.add('show');
+    }
+
+    grid.innerHTML = deals.map(d=>{
+      const [name,flag] = DEST_NAMES[d.destination] || [d.destination,'✈'];
+      const pct = Math.round(d.discount_pct||0);
+      const isSuper = pct >= SUPER_DISCOUNT;
+      const kayak = `https://www.kayak.com.co/flights/BAQ-${d.destination}/${d.departure_date}`;
+      return `
+      <div class="deal ${isSuper?'super':''}">
+        ${pct>0?`<span class="discount ${isSuper?'super':''}">-${pct}%</span>`:''}
+        <div class="flag">${flag}</div>
+        <h3>${name}</h3>
+        <div class="route">BAQ → ${d.destination}${d.airline?' · '+d.airline:''}${d.transfers===0?' · Directo':''}</div>
+        <div class="price">${COP(d.price)} <small>COP</small></div>
+        <div class="date">📅 ${d.departure_date}</div>
+        <a class="book" href="${d.link||kayak}" target="_blank" rel="noopener">Ver vuelo →</a>
+      </div>`;
+    }).join('');
+  }catch(e){
+    grid.innerHTML = '<div class="empty">No se pudieron cargar las ofertas. Verifica que exista <code>data/deals.json</code>.</div>';
+  }
+}
+loadDeals();
+</script>
+</body>
+</html>
