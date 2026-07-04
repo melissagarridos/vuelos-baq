@@ -264,7 +264,7 @@ function cardHTML(d){
     <h3>${name}</h3>
     <div class="route">${d.origin} → ${d.destination}${airline?' · '+airline:''}${d.transfers===0?' · Directo':''}</div>
     <div class="price">${COP(d.price)} <small>COP</small></div>
-    <div class="date">📅 ${d.departure_date}</div>
+    <div class="date">📅 ${d.departure_date}${d.source==='google_flights'?' · vía Google Flights':''}</div>
     <a class="book" href="${d.link||kayak}" target="_blank" rel="noopener">Ver vuelo →</a>
   </div>`;
 }

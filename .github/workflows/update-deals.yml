@@ -21,6 +21,7 @@ jobs:
       - name: Actualizar deals.json
         env:
           TRAVELPAYOUTS_TOKEN: ${{ secrets.TRAVELPAYOUTS_TOKEN }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
         run: python scripts/update_deals.py
 
       - name: Commit y push

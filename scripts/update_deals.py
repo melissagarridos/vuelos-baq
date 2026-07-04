@@ -1,23 +1,29 @@
 #!/usr/bin/env python3
 """
 Actualiza data/deals.json con los precios más baratos en rutas nacionales e
-internacionales desde Barranquilla (BAQ), Cartagena (CTG) y Bogotá (BOG),
-usando la API gratuita de Travelpayouts (datos de Aviasales).
+internacionales desde Barranquilla (BAQ), Cartagena (CTG) y Bogotá (BOG).
 
-Requiere la variable de entorno TRAVELPAYOUTS_TOKEN.
-Regístrate gratis en https://www.travelpayouts.com/ para obtener tu token.
+Fuentes:
+1. Travelpayouts / Aviasales (obligatoria) — TRAVELPAYOUTS_TOKEN.
+2. SerpApi / Google Flights (opcional)  — SERPAPI_KEY.
+   Cubre low-cost como Wingo, JetSMART y Clic. El plan gratis da 100
+   búsquedas/mes, así que solo se consultan SERPAPI_DAILY_LIMIT rutas por
+   corrida, rotando cada día; se conserva el precio más bajo de ambas fuentes.
 
-Uso local:  TRAVELPAYOUTS_TOKEN=xxx python scripts/update_deals.py
+Uso local:
+  TRAVELPAYOUTS_TOKEN=xxx SERPAPI_KEY=yyy python scripts/update_deals.py
 """
 import json
 import os
 import sys
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 TOKEN = os.environ.get("TRAVELPAYOUTS_TOKEN", "")
+SERPAPI_KEY = os.environ.get("SERPAPI_KEY", "")
+SERPAPI_DAILY_LIMIT = int(os.environ.get("SERPAPI_DAILY_LIMIT", "3"))
 CURRENCY = "cop"
 
 ORIGINS = ["BAQ", "CTG", "BOG"]
@@ -88,7 +94,76 @@ def fetch_cheapest(origin: str, dest: str, scope: str) -> dict | None:
         "transfers": it.get("transfers", None),
         "discount_pct": discount,
         "link": "https://www.aviasales.com" + it["link"] if it.get("link") else "",
+        "source": "aviasales",
     }
+
+
+# ---------- SerpApi / Google Flights ----------
+SERPAPI_URL = "https://serpapi.com/search.json"
+
+
+def fetch_google_flights(origin: str, dest: str, dep_date: str) -> dict | None:
+    """Precio más bajo en Google Flights para una ruta y fecha (solo ida)."""
+    params = urllib.parse.urlencode({
+        "engine": "google_flights",
+        "departure_id": origin,
+        "arrival_id": dest,
+        "outbound_date": dep_date,
+        "type": "2",              # solo ida
+        "currency": "COP",
+        "hl": "es",
+        "api_key": SERPAPI_KEY,
+    })
+    try:
+        with urllib.request.urlopen(f"{SERPAPI_URL}?{params}", timeout=45) as r:
+            payload = json.load(r)
+    except Exception as e:
+        print(f"  [WARN] SerpApi {origin}->{dest}: {e}", file=sys.stderr)
+        return None
+
+    options = (payload.get("best_flights") or []) + (payload.get("other_flights") or [])
+    options = [o for o in options if o.get("price")]
+    if not options:
+        return None
+    best = min(options, key=lambda o: o["price"])
+    legs = best.get("flights") or []
+    return {
+        "price": float(best["price"]),
+        "airline": legs[0].get("airline", "") if legs else "",
+        "transfers": max(0, len(legs) - 1),
+        "link": f"https://www.google.com/travel/flights?q="
+                f"{urllib.parse.quote(f'Flights from {origin} to {dest} on {dep_date} one way')}&curr=COP",
+    }
+
+
+def rotation_slice(deals: list, limit: int) -> list:
+    """Subconjunto de rutas a verificar hoy con SerpApi (rota cada día)."""
+    if not deals or limit <= 0:
+        return []
+    start = (date.today().toordinal() * limit) % len(deals)
+    return [deals[(start + i) % len(deals)] for i in range(min(limit, len(deals)))]
+
+
+def enrich_with_google(deals: list) -> None:
+    """Compara con Google Flights las rutas del turno de hoy y guarda el menor precio."""
+    if not SERPAPI_KEY:
+        print("SERPAPI_KEY no configurada: se omite Google Flights.")
+        return
+    for deal in rotation_slice(deals, SERPAPI_DAILY_LIMIT):
+        dep = deal.get("departure_date") or (date.today() + timedelta(days=30)).isoformat()
+        print(f"Verificando en Google Flights {deal['origin']} -> {deal['destination']} ({dep})...")
+        g = fetch_google_flights(deal["origin"], deal["destination"], dep)
+        if g and g["price"] < deal["price"]:
+            typical = typical_price(deal["origin"], deal["destination"], deal["scope"])
+            deal.update({
+                "price": g["price"],
+                "airline": g["airline"],
+                "transfers": g["transfers"],
+                "link": g["link"],
+                "source": "google_flights",
+                "discount_pct": round(max(0.0, (1 - g["price"] / typical) * 100), 1) if typical else 0.0,
+            })
+            print(f"  Mejor precio en Google Flights: {g['price']:,.0f} COP ({g['airline']})")
 
 
 def main() -> None:
@@ -110,6 +185,8 @@ def main() -> None:
             deal = fetch_cheapest(origin, dest, "international")
             if deal:
                 deals.append(deal)
+
+    enrich_with_google(deals)
 
     deals.sort(key=lambda d: (d["origin"], -d["discount_pct"]))
     OUT.parent.mkdir(parents=True, exist_ok=True)

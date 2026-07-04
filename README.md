@@ -34,6 +34,14 @@ vuelos-baq/
 
 Mientras no configures el token, la página muestra los datos de ejemplo de `data/deals.json`.
 
+### Fuente adicional: Google Flights (SerpApi, opcional)
+
+Amplía la cobertura con low-cost como **Wingo, JetSMART y Clic**:
+
+1. Regístrate gratis en [SerpApi](https://serpapi.com/) (100 búsquedas/mes) y copia tu API key.
+2. Agrega el secreto `SERPAPI_KEY` en el repositorio (igual que el paso anterior).
+3. El bot verifica cada día `SERPAPI_DAILY_LIMIT` rutas (3 por defecto, ~90 búsquedas/mes) rotando entre todas, y publica el precio más bajo entre Aviasales y Google Flights. Las ofertas mejoradas se marcan "vía Google Flights".
+
 ## Personalización
 
 - **Orígenes**: edita `ORIGINS` en `scripts/update_deals.py` y las pestañas en `index.html`.
