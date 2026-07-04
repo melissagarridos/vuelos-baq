@@ -1,0 +1,31 @@
+
+on:
+  schedule:
+    - cron: "0 11 * * *"   # 6:00 a.m. hora Colombia
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Actualizar deals.json
+        env:
+          TRAVELPAYOUTS_TOKEN: ${{ secrets.TRAVELPAYOUTS_TOKEN }}
+        run: python scripts/update_deals.py
+
+      - name: Commit y push
+        run: |
+          git config user.name "flight-bot"
+          git config user.email "actions@github.com"
+          git add data/deals.json
+          git diff --cached --quiet || git commit -m "chore: actualizar ofertas $(date -u +%F)"
+          git push
